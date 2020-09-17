@@ -1,5 +1,7 @@
+import views.BoardWindow;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Dominoes");
+        BoardWindow boardWindow = new BoardWindow();
     }
 }

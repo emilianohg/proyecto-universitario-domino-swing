@@ -17,12 +17,15 @@ public class BoardWindow extends JFrame {
     List<ButtonDomino> dominoes;
     Player[] players;
     JPanel[] panelsPlayer;
+    JLabel txtMessage;
 
 
     public BoardWindow () {
         super("Dominoes");
         setSize(1200, 800);
+        setResizable(false);
         setLocationRelativeTo(null);
+        setIconImage(new ImageIcon("src/assets/domino.png").getImage());
 
         init();
         addDominoes();
@@ -40,7 +43,7 @@ public class BoardWindow extends JFrame {
         for (int i = 0; i <= 6; i++) {
             for (int j=i; j <= 6; j++) {
                 Domino domino=new Domino(i, j);
-                ButtonDomino btnDomino=new ButtonDomino(domino);
+                ButtonDomino btnDomino = new ButtonDomino(domino);
                 dominoes.add(btnDomino);
                 panelBoard.add(btnDomino);
             }
@@ -68,6 +71,10 @@ public class BoardWindow extends JFrame {
 
         btnPlay = new JButton("Comenzar", new ImageIcon("src/assets/play.png"));
         panelOptions.add(btnPlay);
+
+        txtMessage = new JLabel("");
+        txtMessage.setVisible(false);
+        panelOptions.add(txtMessage);
 
         GridLayout grid = new GridLayout(4,7);
 
@@ -97,7 +104,6 @@ public class BoardWindow extends JFrame {
 
             if ((i+1) % 2 == 0) {
                 currentPanel.setLayout(new BoxLayout(currentPanel, BoxLayout.Y_AXIS));
-                currentPanel.setAlignmentY(Component.CENTER_ALIGNMENT);
             }
 
             panelMain.add(currentPanel, directions[i]);
@@ -122,13 +128,22 @@ public class BoardWindow extends JFrame {
                 List<ButtonDomino> dominoesTaken = dominoes.subList(i*7,(i+1)*7);
 
                 JPanel currentPanel = panelsPlayer[i];
-                int finalI=i;
+                int finalI = i;
+
+                if ((i + 1) % 2 == 0) {
+                    currentPanel.add(Box.createVerticalGlue());
+                }
+
                 dominoesTaken.forEach(domino -> {
-                    if ((finalI +1) % 2 == 0) {
+                    if ((finalI + 1) % 2 == 0) {
                         domino.rotateRight();
                     }
                     currentPanel.add(domino);
                 });
+
+                if ((i + 1) % 2 == 0) {
+                    currentPanel.add(Box.createVerticalGlue());
+                }
 
                 currentPanel.update(currentPanel.getGraphics());
             }
@@ -136,6 +151,8 @@ public class BoardWindow extends JFrame {
             removeAllFromPanel(panelBoard);
             btnShuffle.setVisible(false);
             btnPlay.setVisible(false);
+            txtMessage.setVisible(true);
+            txtMessage.setText("Es turno del jugador 1");
 
         });
     }

@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class ButtonDomino extends JButton {
-    private Domino domino;
+    private final Domino domino;
     private BufferedImage image;
 
     public ButtonDomino (Domino domino) {

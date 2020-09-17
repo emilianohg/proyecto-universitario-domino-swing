@@ -16,7 +16,7 @@ public class BackgroundPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         try {
-            BufferedImage img = ImageIO.read(new File("src/assets/background.jpeg"));
+            BufferedImage img = ImageIO.read(new File("src/assets/casino-background-white.jpg"));
             g.drawImage(img, 0, 0, this);
         } catch (IOException e) {
             e.printStackTrace();

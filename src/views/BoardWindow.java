@@ -341,7 +341,13 @@ public class BoardWindow extends JFrame {
         }
 
         buttons.forEach(btn -> {
-            btn.hints();
+            if (isFirstDomino(btn.getDomino())) {
+                btn.hints();
+            }
+
+            if (dominoesPlayed.size() > 0) {
+                btn.hints();
+            }
         });
 
     }

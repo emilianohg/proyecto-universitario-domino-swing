@@ -1,18 +1,14 @@
 package views;
 
-import domain.Domino;
-import utils.Image;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
-public class ButtonDomino extends JButton {
+import domain.Domino;
+import domain.Player;
+
+public class ButtonDomino extends GameButton {
     private final Domino domino;
-    private BufferedImage image;
+    private Player owner;
+
 
     public ButtonDomino (Domino domino) {
         this.domino = domino;
@@ -22,22 +18,23 @@ public class ButtonDomino extends JButton {
         setFocusable(false);
         setMargin(new Insets(0, 0, 0, 0));
         setContentAreaFilled(false);
+
         String urlDominoIcon = String.format(
                 "src/assets/dominoes/domino-%s-%s.jpg",
                 domino.getValue()[0],
                 domino.getValue()[1]
         );
-        try {
-            image = ImageIO.read(new File(urlDominoIcon));
-            setIcon(new ImageIcon(image));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        setIcon(urlDominoIcon);
         setVisible(true);
     }
 
-    public void rotateRight () {
-        setIcon(new ImageIcon(Image.rotate(image, 90.0d)));
+    public void setOwner (Player owner) {
+        this.owner = owner;
+    }
+
+    public Player getOwner() {
+        return owner;
     }
 
     public Domino getDomino() {

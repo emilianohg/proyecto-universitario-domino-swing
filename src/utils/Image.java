@@ -1,8 +1,11 @@
 package utils;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class Image {
     public static BufferedImage rotate(BufferedImage image, Double degrees) {
@@ -28,5 +31,21 @@ public class Image {
         g2d.drawImage(image, 0, 0, null);
         g2d.dispose();
         return rotate;
+    }
+
+    public static BufferedImage invertImage(BufferedImage image) {
+
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
+                int rgba = image.getRGB(x, y);
+                Color col = new Color(rgba, true);
+                col = new Color(255 - col.getRed(),
+                        255 - col.getGreen(),
+                        255 - col.getBlue());
+                image.setRGB(x, y, col.getRGB());
+            }
+        }
+
+        return image;
     }
 }

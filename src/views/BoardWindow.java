@@ -49,6 +49,44 @@ public class BoardWindow extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
+    public void makeGlass () {
+        JPanel glass = (JPanel) getGlassPane();
+        glass.setOpaque(false);
+        glass.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints(
+            0,
+            0,
+            1,
+            1,
+            1.0,
+            1.0,
+            GridBagConstraints.NORTHWEST,
+            GridBagConstraints.NONE,
+            new Insets(10, 10, 10, 10),
+            20,
+            0
+        );
+
+        glass.add(new CardPlayer(players[0]), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        glass.add(new CardPlayer(players[1]), gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.SOUTHWEST;
+        glass.add(new CardPlayer(players[3]), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.SOUTHEAST;
+        glass.add(new CardPlayer(players[2]), gbc);
+
+        glass.setVisible(true);
+    }
+
     private void addDominoes () {
         dominoes = new ArrayList<>();
         dominoesPlayed = new ArrayList<>();
@@ -195,6 +233,8 @@ public class BoardWindow extends JFrame {
             txtMessage.setVisible(true);
             txtMessage.setText("Es turno del jugador " + turn);
 
+            makeGlass();
+
             verifyGame();
 
         });
@@ -286,6 +326,12 @@ public class BoardWindow extends JFrame {
         panelBoard.repaint();
         update(getGraphics());
 
+        int remainingDominoes = getDominoes(turn).size();
+        if (remainingDominoes == 0) {
+            showWinner(player);
+            return;
+        }
+
         nextTurn();
     }
 
@@ -332,7 +378,8 @@ public class BoardWindow extends JFrame {
         }
 
         if (dominoesNotPlayed == 0) {
-            System.out.println("Fin del juego");
+            calcWinner();
+            return;
         }
 
         disableAllBtnsSkip();
@@ -350,6 +397,37 @@ public class BoardWindow extends JFrame {
             }
         });
 
+    }
+
+    private void calcWinner() {
+        int[] points = new int[4];
+        for (int i = 1; i <= panelsPlayer.length; i++) {
+            List<ButtonDomino> buttons = getDominoes(i);
+            int sum = buttons.stream().reduce(0, (acc, btn) ->
+                    acc + btn.getDomino().total(),
+                Integer::sum);
+            points[i-1] = sum;
+        }
+        System.out.println(Arrays.toString(points));
+    }
+
+    private List<ButtonDomino> getDominoes(int turn) {
+        JPanel panel = panelsPlayer[turn - 1];
+        List<ButtonDomino> buttons = new ArrayList<>();
+        Component[] components = panel.getComponents();
+
+        for (Component component : components) {
+            if (component.getClass().equals(ButtonDomino.class)) {
+                ButtonDomino btnDomino = ((ButtonDomino) component);
+                buttons.add(btnDomino);
+            }
+        }
+
+        return buttons;
+    }
+
+    private void showWinner(Player player) {
+        txtMessage.setText("Ganador: " + player.getName());
     }
 
     private void disableAllBtnsSkip () {
@@ -384,7 +462,7 @@ public class BoardWindow extends JFrame {
         List<ButtonDomino> buttons = new ArrayList<>();
 
         Component[] components = panel.getComponents();
-        System.out.println("Turno de " + turn);
+
         for (Component component : components) {
             if (component.getClass().equals(ButtonDomino.class)) {
                 ButtonDomino btnDomino = ((ButtonDomino) component);

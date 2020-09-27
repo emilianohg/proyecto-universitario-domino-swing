@@ -1,9 +1,10 @@
 package domain;
 
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.Optional;
 
-public class Player {
+public class Player implements Comparable<Player> {
 
     private ArrayList<Domino> dominoes;
     private String name;
@@ -15,6 +16,7 @@ public class Player {
     }
 
     public void take (Domino domino) {
+        score += domino.total();
         this.dominoes.add(domino);
     }
 
@@ -24,12 +26,13 @@ public class Player {
         }
     }
 
-    public boolean canPlay () {
-        return true;
-    }
+    public boolean drop (Domino domino) {
+        Optional<Domino> dominoFinded = dominoes.stream().filter(d -> Arrays.equals(d.getValue(), domino.getValue())).findFirst();
+        if (!dominoFinded.isPresent())
+            return false;
 
-    public void setScore(int score) {
-        this.score = score;
+        score -= dominoFinded.get().total();
+        return true;
     }
 
     public int getScore() {
@@ -49,14 +52,14 @@ public class Player {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
-
-    @Override
     public String toString() {
         return "Player{" +
                 "name='" + name + '\'' +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Player player) {
+        return getScore() - player.getScore();
     }
 }

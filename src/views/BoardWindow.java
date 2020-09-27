@@ -4,26 +4,28 @@ import domain.Domino;
 import domain.Player;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
 
 public class BoardWindow extends JFrame {
 
     JPanel panelMain, panelCenter, panelBoard, panelOptions;
-    JButton btnShuffle, btnPlay;
+    JButton btnShuffle, btnPlay, btnOriginal;
+
+    private final Font fontTurn = new Font("Verdana", Font.PLAIN, 20);
+    private final Font fontWinner = new Font("Verdana", Font.BOLD, 20);
 
     List<ButtonDomino> dominoes;
-    List<ButtonDomino> dominoesPlayed;
     Player[] players;
     JPanel[] panelsPlayer;
     JButton[] btnsSkip;
+    CardPlayer[] cardPlayers;
+
     JLabel txtMessage;
+
     int numberPlayers = 4;
     int turn = 1;
     int numberLeft = 6;
@@ -33,18 +35,17 @@ public class BoardWindow extends JFrame {
 
     public BoardWindow () {
         super("Dominoes");
-        setSize(1200, 800);
+        setSize(1100, 740);
         setResizable(false);
         setLocationRelativeTo(null);
         setIconImage(new ImageIcon("src/assets/domino.png").getImage());
 
         init();
-        addDominoes();
+        initDominoes();
         addPlayerPanel();
         addActions();
 
         setVisible(true);
-        // showResults();
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
@@ -67,29 +68,37 @@ public class BoardWindow extends JFrame {
             0
         );
 
-        glass.add(new CardPlayer(players[0]), gbc);
+        cardPlayers = new CardPlayer[4];
+
+        cardPlayers[0] = new CardPlayer(players[0], "src/assets/users/user-1.png");
+
+        glass.add(cardPlayers[0], gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.NORTHEAST;
-        glass.add(new CardPlayer(players[1]), gbc);
+        cardPlayers[1] = new CardPlayer(players[1], "src/assets/users/user-2.png");
+        glass.add(cardPlayers[1], gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.SOUTHWEST;
-        glass.add(new CardPlayer(players[3]), gbc);
+        cardPlayers[3] = new CardPlayer(players[3], "src/assets/users/user-4.png");
+        glass.add(cardPlayers[3], gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.SOUTHEAST;
-        glass.add(new CardPlayer(players[2]), gbc);
+        cardPlayers[2] = new CardPlayer(players[2], "src/assets/users/user-3.png");
+        glass.add(cardPlayers[2], gbc);
 
         glass.setVisible(true);
     }
 
-    private void addDominoes () {
+    public void initDominoes() {
         dominoes = new ArrayList<>();
-        dominoesPlayed = new ArrayList<>();
+
+        removeAllFromPanel(panelBoard);
 
         for (int i = 0; i <= 6; i++) {
             for (int j=i; j <= 6; j++) {
@@ -99,6 +108,11 @@ public class BoardWindow extends JFrame {
                 panelBoard.add(btnDomino);
             }
         }
+
+        panelBoard.revalidate();
+        panelBoard.repaint();
+        update(getGraphics());
+
     }
 
     private void init () {
@@ -123,7 +137,11 @@ public class BoardWindow extends JFrame {
         btnPlay = new JButton("Comenzar", new ImageIcon("src/assets/play.png"));
         panelOptions.add(btnPlay);
 
+        btnOriginal = new JButton("Original", new ImageIcon("src/assets/reload.png"));
+        panelOptions.add(btnOriginal);
+
         txtMessage = new JLabel("");
+        txtMessage.setFont(fontTurn);
         txtMessage.setVisible(false);
         panelOptions.add(txtMessage);
 
@@ -204,7 +222,7 @@ public class BoardWindow extends JFrame {
                 }
 
                 dominoesTaken.forEach(domino -> {
-                    if ((finalI + 1) % 2 == 0) {
+                    if ((finalI + 1) % 2 == 0) { // Jugadores de los laterales
                         domino.rotateRight();
                     }
 
@@ -213,6 +231,7 @@ public class BoardWindow extends JFrame {
                     }
 
                     domino.addActionListener(this::selectDomino);
+                    players[finalI].take(domino.getDomino());
                     domino.setOwner(players[finalI]);
 
                     currentPanel.add(domino);
@@ -227,46 +246,34 @@ public class BoardWindow extends JFrame {
                 currentPanel.update(currentPanel.getGraphics());
             }
 
+            dominoes.clear();
+
             removeAllFromPanel(panelBoard);
             btnShuffle.setVisible(false);
             btnPlay.setVisible(false);
+            btnOriginal.setVisible(false);
             txtMessage.setVisible(true);
-            txtMessage.setText("Es turno del jugador " + turn);
+
+            txtMessage.setText("Es turno de " + players[turn-1].getName());
 
             makeGlass();
 
             verifyGame();
 
         });
+
+        btnOriginal.addActionListener(evt -> {
+            initDominoes();
+        });
     }
 
-    public void showResults () {
-        JPanel glass = (JPanel) getGlassPane();
-        String[] titles = {"Nombre", "Puntuacion"};
-        DefaultTableModel tableModel = new DefaultTableModel(titles, 0);
-
-        for (Player player : players) {
-            Object[] row ={
-                    player.getName(),
-                    player.getScore(),
-            };
-            tableModel.addRow(row);
-        }
-
-        JTable table = new JTable(tableModel);
-        table.setEnabled(false);
-        glass.add(new JScrollPane(table), BorderLayout.CENTER);
-        glass.setVisible(true);
-        glass.setOpaque(true);
-    }
-
-    private void selectDomino(ActionEvent evt) {
+    private void selectDomino (ActionEvent evt) {
 
         ButtonDomino btnDomino = (ButtonDomino) evt.getSource();
         Domino domino = btnDomino.getDomino();
         Player player = btnDomino.getOwner();
 
-        if (dominoesPlayed.size() == 0 && !isFirstDomino(domino)) {
+        if (dominoes.size() == 0 && !isFirstDomino(domino)) {
             return;
         }
 
@@ -293,7 +300,7 @@ public class BoardWindow extends JFrame {
                 numberLeft = dominoMinus;
             }
 
-            dominoesPlayed.add(0, btnDomino);
+            dominoes.add(0, btnDomino);
         } else if (dominoMinus == numberRight || dominoMajor == numberRight) {
 
             if (dominoMinus == numberRight) {
@@ -304,7 +311,7 @@ public class BoardWindow extends JFrame {
                 numberRight = dominoMinus;
             }
 
-            dominoesPlayed.add(btnDomino);
+            dominoes.add(btnDomino);
         }
 
         if (isDouble(domino)) {
@@ -315,10 +322,11 @@ public class BoardWindow extends JFrame {
             btnDomino.removeActionListener(al);
         }
 
+        player.drop(domino);
         btnDomino.setOwner(null);
 
         panelBoard.removeAll();
-        dominoesPlayed.forEach(_btnDomino -> {
+        dominoes.forEach(_btnDomino -> {
             panelBoard.add(_btnDomino);
         });
 
@@ -355,44 +363,56 @@ public class BoardWindow extends JFrame {
         if (turn > numberPlayers)
             turn = 1;
 
-        txtMessage.setText("Es turno del jugador " + turn);
+        txtMessage.setText("Es turno de " + players[turn-1].getName());
 
         verifyGame();
     }
 
-    public void removeAllFromPanel(JPanel panel) {
+    private void removeAllFromPanel(JPanel panel) {
         panel.removeAll();
         panel.revalidate();
         panel.repaint();
         panel.update(panel.getGraphics());
     }
 
-    private void verifyGame () {
-        System.out.println("Verificar");
-        List<ButtonDomino> buttons = getDominoesAvailables(turn);
-        System.out.println("Fichas disponibles" + buttons.size());
+    private void changeCurrentCardPlayer () {
+        deactivateAllCardPlayer();
+        cardPlayers[turn - 1].activate();
+    }
 
-        int dominoesNotPlayed = 0;
+    private void deactivateAllCardPlayer() {
+        for (CardPlayer cardPlayer : cardPlayers) {
+            cardPlayer.deactivate();
+        }
+    }
+
+    private void verifyGame () {
+
+        int totalValidDominoes = 0;
         for (int i = 1; i <= panelsPlayer.length; i++) {
-            dominoesNotPlayed += getDominoesAvailables(i).size();
+            totalValidDominoes += getDominoesAvailables(i).size();
         }
 
-        if (dominoesNotPlayed == 0) {
+        if (totalValidDominoes == 0) {
             calcWinner();
             return;
         }
 
         disableAllBtnsSkip();
+
+        List<ButtonDomino> buttons = getDominoesAvailables(turn);
         if (buttons.size() == 0) {
             btnsSkip[turn - 1].setEnabled(true);
         }
+
+        changeCurrentCardPlayer();
 
         buttons.forEach(btn -> {
             if (isFirstDomino(btn.getDomino())) {
                 btn.hints();
             }
 
-            if (dominoesPlayed.size() > 0) {
+            if (dominoes.size() > 0) {
                 btn.hints();
             }
         });
@@ -400,15 +420,51 @@ public class BoardWindow extends JFrame {
     }
 
     private void calcWinner() {
-        int[] points = new int[4];
-        for (int i = 1; i <= panelsPlayer.length; i++) {
-            List<ButtonDomino> buttons = getDominoes(i);
-            int sum = buttons.stream().reduce(0, (acc, btn) ->
-                    acc + btn.getDomino().total(),
-                Integer::sum);
-            points[i-1] = sum;
+
+        List<Player> playersResults = Arrays.asList(players.clone());
+        playersResults.sort(Comparator.reverseOrder());
+        List<Player> winners = new ArrayList();
+
+        String text = "El ganador es ";
+
+        for (Player player : players) {
+            System.out.println(player.getScore());
+            if(winners.isEmpty()) {
+                winners.add(player);
+                text += player.getName();
+                continue;
+            }
+
+            if (winners.get(0).getScore() > player.getScore()) {
+                winners.clear();
+                winners.add(player);
+                text = "El ganador es " + player.getName();
+            } else if (winners.get(0).getScore() == player.getScore()) {
+                winners.add(player);
+                text = "Los ganadores son ";
+            }
         }
-        System.out.println(Arrays.toString(points));
+
+        if (winners.size() == 2) {
+            text = String.format(text + "%s y %s", winners.stream().map(w -> w.getName()).toArray());
+        } else if (winners.size() == 3) {
+            text = String.format(text + "%s, %s y %s", winners.stream().map(w -> w.getName()).toArray());
+        } else if (winners.size() == 4) {
+            text = "¡Todos ganaron!";
+        }
+
+        deactivateAllCardPlayer();
+        for (CardPlayer cardPlayer : cardPlayers) {
+            winners.forEach(w -> {
+                if(w.equals(cardPlayer.getPlayer())) {
+                    cardPlayer.winner();
+                }
+            });
+        }
+
+        txtMessage.setText(text);
+        txtMessage.setForeground(Color.blue);
+        txtMessage.setFont(fontWinner);
     }
 
     private List<ButtonDomino> getDominoes(int turn) {
@@ -427,7 +483,10 @@ public class BoardWindow extends JFrame {
     }
 
     private void showWinner(Player player) {
-        txtMessage.setText("Ganador: " + player.getName());
+        cardPlayers[turn - 1].winner();
+        txtMessage.setText("El ganador es " + player.getName());
+        txtMessage.setForeground(Color.blue);
+        txtMessage.setFont(fontWinner);
     }
 
     private void disableAllBtnsSkip () {
@@ -453,8 +512,6 @@ public class BoardWindow extends JFrame {
             || right == numberLeft
             || right == numberRight;
     }
-
-
 
     private List<ButtonDomino> getDominoesAvailables (int turn) {
         JPanel panel = panelsPlayer[turn - 1];

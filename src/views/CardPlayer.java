@@ -4,6 +4,8 @@ import domain.Player;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -13,11 +15,14 @@ public class CardPlayer extends JPanel {
     private JLabel name;
     private JLabel icon;
 
-    public CardPlayer (Player player) {
+    private Player player;
+
+    public CardPlayer (Player player, String urlImage) {
+        this.player = player;
         name = new JLabel(player.getName());
         icon = new JLabel();
         try {
-            BufferedImage image = ImageIO.read(new File("src/assets/users/user.png"));
+            BufferedImage image = ImageIO.read(new File(urlImage));
             icon.setIcon(new ImageIcon(image));
         } catch (IOException e) {
             e.printStackTrace();
@@ -25,7 +30,37 @@ public class CardPlayer extends JPanel {
         add(icon);
         add(name);
 
-        setBorder(BorderFactory.createLineBorder(Color.lightGray));
+        deactivate();
     }
 
+    public CardPlayer (Player player) {
+        this(player, "src/assets/users/user.png");
+    }
+
+    public void activate () {
+        Border line = BorderFactory.createLineBorder(Color.blue, 2);
+        setBorder(line);
+    }
+
+    public void deactivate () {
+        Border line = BorderFactory.createLineBorder(Color.lightGray, 2);
+        setBorder(line);
+    }
+
+    public void winner () {
+        Border line = BorderFactory.createLineBorder(Color.blue, 2);
+        Border titled = BorderFactory.createTitledBorder(
+            line,
+            "Ganador",
+            TitledBorder.LEFT,
+            TitledBorder.TOP,
+            null,
+            Color.blue
+        );
+        setBorder(titled);
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
 }

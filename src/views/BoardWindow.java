@@ -164,10 +164,10 @@ public class BoardWindow extends JFrame {
         players = new Player[numberPlayers];
         panelsPlayer = new JPanel[numberPlayers];
         String[] directions = {
-                BorderLayout.NORTH,
-                BorderLayout.EAST,
-                BorderLayout.SOUTH,
-                BorderLayout.WEST
+            BorderLayout.NORTH,
+            BorderLayout.EAST,
+            BorderLayout.SOUTH,
+            BorderLayout.WEST
         };
 
         btnsSkip = new JButton[numberPlayers];

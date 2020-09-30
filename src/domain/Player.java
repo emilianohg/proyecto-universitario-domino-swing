@@ -39,6 +39,10 @@ public class Player implements Comparable<Player> {
         return score;
     }
 
+    public void resetDomino () {
+        score = 0;
+    }
+
     public String getName() {
         return name;
     }

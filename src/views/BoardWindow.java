@@ -200,71 +200,73 @@ public class BoardWindow extends JFrame {
     }
 
     public void addActions () {
-        btnShuffle.addActionListener(evt -> {
-            removeAllFromPanel(panelBoard);
+        btnShuffle.addActionListener(this::shuffle);
 
-            Collections.shuffle(dominoes);
-            dominoes.forEach(panelBoard::add);
-
-            panelBoard.update(panelBoard.getGraphics());
-        });
-
-        btnPlay.addActionListener(evt -> {
-
-            for (int i = 0; i <= 3; i++) {
-                List<ButtonDomino> dominoesTaken = dominoes.subList(i*7,(i+1)*7);
-
-                JPanel currentPanel = panelsPlayer[i];
-                int finalI = i;
-
-                if (i > 1) {
-                    currentPanel.add(btnsSkip[i]);
-                }
-
-                dominoesTaken.forEach(domino -> {
-                    if ((finalI + 1) % 2 == 0) { // Jugadores de los laterales
-                        domino.rotateRight();
-                    }
-
-                    if (isFirstDomino(domino.getDomino())) {
-                        this.turn = finalI + 1;
-                    }
-
-                    domino.addActionListener(this::selectDomino);
-                    players[finalI].take(domino.getDomino());
-                    domino.setOwner(players[finalI]);
-
-                    currentPanel.add(domino);
-                });
-
-                if (i <= 1) {
-                    currentPanel.add(btnsSkip[i]);
-                }
-
-                pause = false;
-
-                currentPanel.update(currentPanel.getGraphics());
-            }
-
-            dominoes.clear();
-
-            removeAllFromPanel(panelBoard);
-            btnShuffle.setVisible(false);
-            btnPlay.setVisible(false);
-            btnOriginal.setVisible(false);
-            txtMessage.setVisible(true);
-
-            txtMessage.setText("Es turno de " + players[turn-1].getName());
-
-            makeGlass();
-
-            verifyGame();
-
-        });
+        btnPlay.addActionListener(this::play);
 
         btnOriginal.addActionListener(evt -> {
             initDominoes();
         });
+    }
+
+    private void shuffle (ActionEvent evt) {
+        removeAllFromPanel(panelBoard);
+
+        Collections.shuffle(dominoes);
+        dominoes.forEach(panelBoard::add);
+
+        panelBoard.update(panelBoard.getGraphics());
+    }
+
+    private void play (ActionEvent evt) {
+        for (int i = 0; i <= 3; i++) {
+            List<ButtonDomino> dominoesTaken = dominoes.subList(i*7,(i+1)*7);
+
+            JPanel currentPanel = panelsPlayer[i];
+            int finalI = i;
+
+            if (i > 1) {
+                currentPanel.add(btnsSkip[i]);
+            }
+
+            dominoesTaken.forEach(domino -> {
+                if ((finalI + 1) % 2 == 0) { // Jugadores de los laterales
+                    domino.rotateRight();
+                }
+
+                if (isFirstDomino(domino.getDomino())) {
+                    this.turn = finalI + 1;
+                }
+
+                domino.addActionListener(this::selectDomino);
+                players[finalI].take(domino.getDomino());
+                domino.setOwner(players[finalI]);
+
+                currentPanel.add(domino);
+            });
+
+            if (i <= 1) {
+                currentPanel.add(btnsSkip[i]);
+            }
+
+            pause = false;
+
+            currentPanel.update(currentPanel.getGraphics());
+        }
+
+        dominoes.clear();
+
+        removeAllFromPanel(panelBoard);
+        btnShuffle.setVisible(false);
+        btnPlay.setVisible(false);
+        btnOriginal.setVisible(false);
+        txtMessage.setVisible(true);
+
+        txtMessage.setText("Es turno de " + players[turn-1].getName());
+
+        makeGlass();
+
+        verifyGame();
     }
 
     private void selectDomino (ActionEvent evt) {

@@ -7,7 +7,7 @@ import java.util.Optional;
 public class Player implements Comparable<Player> {
 
     private ArrayList<Domino> dominoes;
-    private String name;
+    private final String name;
     private int score = 0;
 
     public Player (String name) {

@@ -62,8 +62,12 @@ public class BoardWindow extends JFrame {
 
     @Override
     public void paint(Graphics g) {
-        if (currentGraphic == null || backBuffer == null) {
+        if (backBuffer == null) {
+            repaint();
             return;
+        }
+        if (currentGraphic == null) {
+            currentGraphic = backBuffer.getGraphics();
         }
         super.paint(currentGraphic);
         g.drawImage(backBuffer, 0, 0, getWidth(), getHeight(), this);
@@ -222,9 +226,7 @@ public class BoardWindow extends JFrame {
         btnPlay.addActionListener(this::play);
         btnRestart.addActionListener(this::restart);
 
-        btnOriginal.addActionListener(evt -> {
-            initDominoes();
-        });
+        btnOriginal.addActionListener(evt -> initDominoes());
     }
 
     private void shuffle (ActionEvent evt) {
@@ -390,9 +392,7 @@ public class BoardWindow extends JFrame {
 
     private void updateDominoBoard () {
         panelBoard.removeAll();
-        dominoes.forEach(_btnDomino -> {
-            panelBoard.add(_btnDomino);
-        });
+        dominoes.forEach(panelBoard::add);
 
         panelBoard.revalidate();
         panelBoard.repaint();
@@ -489,7 +489,7 @@ public class BoardWindow extends JFrame {
 
         List<Player> playersResults = Arrays.asList(players.clone());
         playersResults.sort(Comparator.reverseOrder());
-        List<Player> winners = new ArrayList();
+        List<Player> winners = new ArrayList<>();
 
         String text = "El ganador es ";
 
@@ -512,9 +512,9 @@ public class BoardWindow extends JFrame {
         }
 
         if (winners.size() == 2) {
-            text = String.format(text + "%s y %s", winners.stream().map(w -> w.getName()).toArray());
+            text = String.format(text + "%s y %s", winners.stream().map(Player::getName).toArray());
         } else if (winners.size() == 3) {
-            text = String.format(text + "%s, %s y %s", winners.stream().map(w -> w.getName()).toArray());
+            text = String.format(text + "%s, %s y %s", winners.stream().map(Player::getName).toArray());
         } else if (winners.size() == 4) {
             text = "¡Todos ganaron!";
         }
@@ -585,11 +585,9 @@ public class BoardWindow extends JFrame {
     private List<ButtonDomino> getDominoesAvailables (int turn) {
         List<ButtonDomino> btnDominoes = getDominoes(turn);
 
-        List<ButtonDomino> btnDominoesAvailables = btnDominoes.stream()
+        return btnDominoes.stream()
                 .filter(btnDomino -> isValidDomino(btnDomino.getDomino()))
                 .collect(Collectors.toList());
-
-        return btnDominoesAvailables;
     }
 
     private boolean isDouble (Domino domino) {

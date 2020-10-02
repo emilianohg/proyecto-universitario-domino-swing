@@ -12,15 +12,13 @@ import java.io.File;
 import java.io.IOException;
 
 public class CardPlayer extends JPanel {
-    private JLabel name;
-    private JLabel icon;
 
-    private Player player;
+    private final Player player;
 
     public CardPlayer (Player player, String urlImage) {
         this.player = player;
-        name = new JLabel(player.getName());
-        icon = new JLabel();
+        JLabel name = new JLabel(player.getName());
+        JLabel icon = new JLabel();
         try {
             BufferedImage image = ImageIO.read(new File(urlImage));
             icon.setIcon(new ImageIcon(image));

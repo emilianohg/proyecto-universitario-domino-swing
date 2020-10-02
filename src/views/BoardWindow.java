@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class BoardWindow extends JFrame {
 
     JPanel glass;
-    JPanel panelMain, panelCenter, panelBoard, panelOptions, panelRestart;
+    JPanel panelMain, panelCenter, panelBoard, panelOptions;
     JButton btnShuffle, btnPlay, btnOriginal, btnRestart;
 
     private final Font fontTurn = new Font("Verdana", Font.PLAIN, 20);
@@ -35,6 +35,9 @@ public class BoardWindow extends JFrame {
 
     boolean pause = true;
 
+    Graphics currentGraphic;
+    Image backBuffer;
+
     public BoardWindow () {
         super("Dominoes");
         setSize(1100, 740);
@@ -50,7 +53,20 @@ public class BoardWindow extends JFrame {
 
         setVisible(true);
 
+        backBuffer = createImage(getWidth(), getHeight());
+        currentGraphic = backBuffer.getGraphics();
+
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+    }
+
+
+    @Override
+    public void paint(Graphics g) {
+        if (currentGraphic == null || backBuffer == null) {
+            return;
+        }
+        super.paint(currentGraphic);
+        g.drawImage(backBuffer, 0, 0, getWidth(), getHeight(), this);
     }
 
     public void makeGlass () {
@@ -65,8 +81,8 @@ public class BoardWindow extends JFrame {
             1.0,
             GridBagConstraints.NORTHWEST,
             GridBagConstraints.NONE,
-            new Insets(10, 10, 10, 10),
-            20,
+            new Insets(5, 5, 5, 5),
+            15,
             0
         );
 
@@ -128,10 +144,6 @@ public class BoardWindow extends JFrame {
         panelOptions.setOpaque(false);
         panelCenter.add(panelOptions, BorderLayout.SOUTH);
 
-        panelRestart = new JPanel();
-        panelRestart.setOpaque(false);
-        panelCenter.add(panelRestart, BorderLayout.NORTH);
-
         btnShuffle = new JButton("Revolver", new ImageIcon("src/assets/shuffle.png"));
         panelOptions.add(btnShuffle);
 
@@ -140,8 +152,7 @@ public class BoardWindow extends JFrame {
 
         btnRestart = new JButton("Reiniciar", new ImageIcon("src/assets/reload.png"));
         btnRestart.setVisible(false);
-        panelRestart.add(btnRestart);
-
+        panelOptions.add(btnRestart);
 
         btnOriginal = new JButton("Original", new ImageIcon("src/assets/reload.png"));
         panelOptions.add(btnOriginal);

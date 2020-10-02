@@ -1,6 +1,6 @@
 package views;
 
-import utils.Image;
+import utils.ImageUtils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -33,24 +33,24 @@ public class GameButton extends JButton {
 
     public void rotate (double angle) {
         this.angleRotated = angle;
-        setIcon(new ImageIcon(Image.rotate(image, angleRotated)));
+        setIcon(new ImageIcon(ImageUtils.rotate(image, angleRotated)));
     }
 
     public void resetRotate () {
         angleRotated += -angleRotated;
-        setIcon(new ImageIcon(Image.rotate(image, angleRotated)));
+        setIcon(new ImageIcon(ImageUtils.rotate(image, angleRotated)));
     }
 
     public void hints () {
         new Thread(() -> {
-            BufferedImage imageActual = Image.rotate(image, angleRotated);
-            setIcon(new ImageIcon(Image.invertImage(imageActual)));
+            BufferedImage imageActual = ImageUtils.rotate(image, angleRotated);
+            setIcon(new ImageIcon(ImageUtils.invertImage(imageActual)));
             try {
                 sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            setIcon(new ImageIcon(Image.rotate(image, angleRotated)));
+            setIcon(new ImageIcon(ImageUtils.rotate(image, angleRotated)));
         }).start();
     }
 }

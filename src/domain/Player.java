@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public class Player implements Comparable<Player> {
 
-    private ArrayList<Domino> dominoes;
+    private final ArrayList<Domino> dominoes;
     private final String name;
     private int score = 0;
 
@@ -20,19 +20,12 @@ public class Player implements Comparable<Player> {
         this.dominoes.add(domino);
     }
 
-    public void take (Domino[] dominoes) {
-        for (Domino domino : dominoes) {
-            this.take(domino);
-        }
-    }
+    public void drop (Domino domino) {
+        Optional<Domino> dominoDroped = dominoes.stream().filter(d -> Arrays.equals(d.getValue(), domino.getValue())).findFirst();
+        if (dominoDroped.isEmpty())
+            return;
 
-    public boolean drop (Domino domino) {
-        Optional<Domino> dominoFinded = dominoes.stream().filter(d -> Arrays.equals(d.getValue(), domino.getValue())).findFirst();
-        if (!dominoFinded.isPresent())
-            return false;
-
-        score -= dominoFinded.get().total();
-        return true;
+        score -= dominoDroped.get().total();
     }
 
     public int getScore() {

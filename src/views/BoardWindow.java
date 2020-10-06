@@ -23,7 +23,7 @@ public class BoardWindow extends JFrame {
     List<ButtonDomino> dominoes;
     Player[] players;
     JPanel[] panelsPlayer;
-    JButton[] btnsSkip;
+    JButton[] buttonsSkip;
     CardPlayer[] cardPlayers;
 
     JLabel txtMessage;
@@ -130,7 +130,7 @@ public class BoardWindow extends JFrame {
     }
 
     private void init () {
-        getContentPane().removeAll(); // Eliminar
+        getContentPane().removeAll();
 
         glass = (JPanel) getGlassPane();
         glass.setVisible(false);
@@ -185,7 +185,7 @@ public class BoardWindow extends JFrame {
             BorderLayout.WEST
         };
 
-        btnsSkip = new JButton[numberPlayers];
+        buttonsSkip= new JButton[numberPlayers];
         for (int i=0; i < players.length; i++) {
             Player player = new Player("Player " + (i+1));
             players[i] = player;
@@ -203,7 +203,7 @@ public class BoardWindow extends JFrame {
                 btnSkip.rotate(j * 90);
             }
             btnSkip.addActionListener(this::skipTurn);
-            btnsSkip[i] = btnSkip;
+            buttonsSkip[i] = btnSkip;
 
             panelsPlayer[i] = currentPanel;
             if ((i + 1) % 2 == 0) {
@@ -266,23 +266,23 @@ public class BoardWindow extends JFrame {
     }
 
     private void play (ActionEvent evt) {
+        Collections.shuffle(dominoes);
         for (int i = 0; i <= numberPlayers-1; i++) {
-            System.out.println(players[i].getScore());
             List<ButtonDomino> dominoesTaken = dominoes.subList(i*7,(i+1)*7);
 
             JPanel currentPanel = panelsPlayer[i];
             int finalI = i;
 
             if (i > 1) {
-                currentPanel.add(btnsSkip[i]);
+                currentPanel.add(buttonsSkip[i]);
             }
 
             dominoesTaken.forEach(domino -> {
-                if ((finalI + 1) % 2 == 0) { // Jugadores de los laterales
+                if ((finalI + 1) % 2 == 0) { // EAST and WEST
                     domino.rotateRight();
                 }
 
-                if (isFirstDomino(domino.getDomino())) { // Detecta la mula de 6
+                if (isFirstDomino(domino.getDomino())) {
                     this.turn = finalI + 1;
                 }
 
@@ -294,7 +294,7 @@ public class BoardWindow extends JFrame {
             });
 
             if (i <= 1) {
-                currentPanel.add(btnsSkip[i]);
+                currentPanel.add(buttonsSkip[i]);
             }
 
             pause = false;
@@ -442,7 +442,7 @@ public class BoardWindow extends JFrame {
 
     private void verifyGame () {
 
-        if (isGameEnded()) { // No hay fichas validas
+        if (isGameEnded()) {
             calcWinner();
             return;
         }
@@ -459,7 +459,7 @@ public class BoardWindow extends JFrame {
 
         List<ButtonDomino> buttons = getDominoesAvailables(turn);
         if (buttons.size() == 0) {
-            btnsSkip[turn - 1].setEnabled(true);
+            this.buttonsSkip[turn - 1].setEnabled(true);
         }
     }
 
@@ -491,32 +491,31 @@ public class BoardWindow extends JFrame {
         playersResults.sort(Comparator.reverseOrder());
         List<Player> winners = new ArrayList<>();
 
-        String text = "El ganador es ";
+        StringBuilder text =new StringBuilder("El ganador es ");
 
         for (Player player : players) {
-            System.out.println(player.getScore());
             if(winners.isEmpty()) {
                 winners.add(player);
-                text += player.getName();
+                text.append(player.getName());
                 continue;
             }
 
             if (winners.get(0).getScore() > player.getScore()) {
                 winners.clear();
                 winners.add(player);
-                text = "El ganador es " + player.getName();
+                text = new StringBuilder("El ganador es " + player.getName());
             } else if (winners.get(0).getScore() == player.getScore()) {
                 winners.add(player);
-                text = "Los ganadores son ";
+                text = new StringBuilder("Los ganadores son ");
             }
         }
 
         if (winners.size() == 2) {
-            text = String.format(text + "%s y %s", winners.stream().map(Player::getName).toArray());
+            text = new StringBuilder(String.format(text + "%s y %s", winners.stream().map(Player::getName).toArray()));
         } else if (winners.size() == 3) {
-            text = String.format(text + "%s, %s y %s", winners.stream().map(Player::getName).toArray());
+            text = new StringBuilder(String.format(text + "%s, %s y %s", winners.stream().map(Player::getName).toArray()));
         } else if (winners.size() == 4) {
-            text = "¡Todos ganaron!";
+            text = new StringBuilder("¡Todos ganaron!");
         }
 
         deactivateAllCardPlayer();
@@ -528,7 +527,7 @@ public class BoardWindow extends JFrame {
             });
         }
 
-        txtMessage.setText(text);
+        txtMessage.setText(text.toString());
         txtMessage.setForeground(Color.blue);
         txtMessage.setFont(fontWinner);
         btnRestart.setVisible(true);
@@ -559,7 +558,7 @@ public class BoardWindow extends JFrame {
     }
 
     private void disableAllBtnsSkip () {
-        for (JButton btn : btnsSkip) {
+        for (JButton btn : buttonsSkip) {
             btn.setEnabled(false);
         }
     }

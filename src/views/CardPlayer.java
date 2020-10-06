@@ -31,10 +31,6 @@ public class CardPlayer extends JPanel {
         deactivate();
     }
 
-    public CardPlayer (Player player) {
-        this(player, "src/assets/users/user.png");
-    }
-
     public void activate () {
         Border line = BorderFactory.createLineBorder(Color.blue, 2);
         setBorder(line);

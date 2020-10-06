@@ -1,11 +1,8 @@
 package utils;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
 public class ImageUtils {
     public static BufferedImage rotate(BufferedImage image, Double degrees) {
@@ -24,7 +21,7 @@ public class ImageUtils {
         int y = (newHeight - image.getHeight()) / 2;
         // Transform the origin point around the anchor point
         AffineTransform at = new AffineTransform();
-        at.setToRotation(radians, x + (image.getWidth() / 2), y + (image.getHeight() / 2));
+        at.setToRotation(radians, x + (image.getWidth() / 2.0), y + (image.getHeight() / 2.0));
         at.translate(x, y);
         g2d.setTransform(at);
         // Paint the originl image
